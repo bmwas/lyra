@@ -10,6 +10,25 @@ echo "2. nvcc available in PATH"
 echo "3. CUDA development tools installed"
 echo ""
 
+# Activate virtual environment if it exists
+if [ -d "virtualenv" ]; then
+    echo "Activating virtual environment..."
+    source virtualenv/bin/activate
+    # Verify virtual environment is activated
+    if [[ "$VIRTUAL_ENV" != "" ]]; then
+        echo "✓ Virtual environment activated: $VIRTUAL_ENV"
+    else
+        echo "WARNING: Virtual environment activation may have failed"
+    fi
+else
+    echo "WARNING: virtualenv directory not found. Make sure you're in the correct directory."
+    echo "Current directory: $(pwd)"
+fi
+
+# Check Python and pip paths
+echo "Python path: $(which python)"
+echo "Pip path: $(which pip)"
+
 # Check if torch is installed
 python -c "import torch; print(f'Torch version: {torch.__version__}')" 2>/dev/null
 if [ $? -ne 0 ]; then
@@ -29,6 +48,10 @@ echo ""
 # Set CUDA environment variables
 export CUDA_HOME=$(dirname $(dirname $(which nvcc)))
 export PATH=$CUDA_HOME/bin:$PATH
+
+# Install missing dependencies first
+echo "Installing build dependencies..."
+pip install packaging wheel setuptools
 
 echo "Installing Flash Attention..."
 pip install --no-build-isolation flash_attn==2.7.4.post1
