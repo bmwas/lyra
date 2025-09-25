@@ -1,4 +1,5 @@
-# Install these packages first (they don't require CUDA compilation):
+# Lyra requirements - Basic packages (no CUDA compilation required)
+# Install these packages after requirements_gen3c.txt
 timm==1.0.19
 kiui==0.2.17
 lru-dict==1.3.0
@@ -8,18 +9,6 @@ mpi4py==4.1.0
 deepspeed==0.17.5
 openexr==3.2.3
 
-# CUDA packages below require torch to be installed first and nvcc available
-# Install these with: pip install --no-build-isolation <package>
-# Note: Make sure torch from requirements_gen3c.txt is installed first
-
-# Flash Attention - requires CUDA compilation
-flash_attn==2.7.4.post1
-
-# Causal Conv1D - requires CUDA compilation  
-git+https://github.com/Dao-AILab/causal-conv1d@v1.4.0
-
-# GSplat - requires CUDA compilation
-git+https://github.com/nerfstudio-project/gsplat.git@73fad53c31ec4d6b088470715a63f432990493de
-
-# Fused SSIM - requires CUDA compilation
-git+https://github.com/rahul-goel/fused-ssim/@8bdb59feb7b9a41b1fab625907cb21f5417deaac
+# NOTE: CUDA packages moved to install_cuda_packages.sh
+# Run the script after installing this file:
+# bash install_cuda_packages.sh
