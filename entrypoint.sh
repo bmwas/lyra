@@ -4,8 +4,59 @@ set -e
 echo "=== Lyra Docker Container Starting ==="
 echo "Working directory: $(pwd)"
 echo "Python version: $(python --version)"
-echo "Torch version: $(python -c 'import torch; print(torch.__version__)' 2>/dev/null || echo 'Not available')"
+echo "Python path: $(which python)"
+echo "Pip path: $(which pip)"
+
+# Debug Python packages
+echo "=== Python Environment Debug ==="
+echo "Python sys.path:"
+python -c "import sys; [print(f'  {p}') for p in sys.path]"
 echo ""
+
+echo "Checking critical packages:"
+python -c "
+try:
+    import torch
+    print(f'✓ Torch: {torch.__version__} (CUDA: {torch.cuda.is_available()})')
+except Exception as e:
+    print(f'❌ Torch: {e}')
+    
+try:
+    import transformers
+    print(f'✓ Transformers: {transformers.__version__}')
+except Exception as e:
+    print(f'❌ Transformers: {e}')
+    
+try:
+    import accelerate
+    print(f'✓ Accelerate: {accelerate.__version__}')
+except Exception as e:
+    print(f'❌ Accelerate: {e}')
+"
+
+# Check if we need to install packages
+echo ""
+echo "Installed pip packages (relevant):"
+pip list | grep -E "(torch|transformers|accelerate|diffusers)" || echo "No relevant packages found"
+echo ""
+
+# Check if critical packages are missing and attempt to reinstall
+echo "=== Package Installation Check ==="
+if ! python -c "import torch" 2>/dev/null; then
+    echo "❌ Critical packages missing! Attempting to reinstall..."
+    echo "This might happen if there was an issue during Docker build."
+    echo ""
+    
+    echo "Reinstalling requirements_gen3c.txt..."
+    pip install --no-cache-dir --break-system-packages -r /app/requirements_gen3c.txt || echo "❌ Failed to install requirements_gen3c.txt"
+    
+    echo "Reinstalling requirements_lyra.txt..."
+    pip install --no-cache-dir --break-system-packages -r /app/requirements_lyra.txt || echo "❌ Failed to install requirements_lyra.txt"
+    
+    echo "Verifying torch installation after reinstall..."
+    python -c "import torch; print(f'✓ Torch reinstalled: {torch.__version__}')" || echo "❌ Torch still not available"
+    echo ""
+fi
 
 # Navigate to the Lyra repository directory
 cd /app
@@ -48,6 +99,29 @@ download_with_retry() {
 }
 
 echo "=== Step 1: Downloading Pre-trained Checkpoints ==="
+
+# Check if torch is available before proceeding with downloads
+if ! python -c "import torch" 2>/dev/null; then
+    echo "❌ Cannot proceed with checkpoint downloads - torch is not available!"
+    echo "⚠️  The Docker build may have failed or packages are corrupted."
+    echo ""
+    echo "Suggested fixes:"
+    echo "1. Rebuild the Docker image: docker build -t lyra:latest ."
+    echo "2. Check for build errors in the Docker build output"
+    echo "3. Try running container without custom commands: docker run -it --gpus all lyra:latest"
+    echo ""
+    echo "Skipping automated setup and dropping to shell for manual debugging..."
+    
+    if [ "$1" = "--interactive" ] || [ "$1" = "-i" ]; then
+        exec bash
+    elif [ $# -gt 0 ]; then
+        exec "$@"
+    else
+        echo "Container will remain running for debugging. Use: docker exec -it <container_id> bash"
+        tail -f /dev/null
+    fi
+    exit 0
+fi
 
 # Check if checkpoints already exist
 if ! check_directory "checkpoints" "Checkpoints directory"; then
