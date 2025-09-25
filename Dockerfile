@@ -94,7 +94,7 @@ ENV PATH=$CUDA_HOME/bin:$PATH
 ENV LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 
 # Set additional environment variables for the application
-ENV PYTHONPATH="/app:${PYTHONPATH:-}"
+ENV PYTHONPATH="/app"
 ENV HUGGINGFACE_HUB_CACHE=/app/cache/huggingface
 ENV TORCH_HOME=/app/cache/torch
 
