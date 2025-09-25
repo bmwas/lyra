@@ -7,8 +7,8 @@ plyfile==1.1.2
 accelerate==1.10.0
 mpi4py==4.1.0
 deepspeed==0.17.5
-openexr==3.2.3
 
+# NOTE: OpenEXR is already installed via pyexr (3.4.0)
 # NOTE: CUDA packages moved to install_cuda_packages.sh
 # Run the script after installing this file:
 # bash install_cuda_packages.sh

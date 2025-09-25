@@ -29,17 +29,17 @@ The ability to generate virtual environments is crucial for applications ranging
 
 ### System Dependencies
 
-Before setting up the Python environment, you need to install the following system dependencies for building certain packages (particularly `sentencepiece`) from source:
+Before setting up the Python environment, you need to install the following system dependencies for building certain packages (particularly `sentencepiece` and `openexr`) from source:
 
 **Ubuntu/Debian:**
 ```bash
 sudo apt update
-sudo apt install -y cmake g++ pkg-config python3-dev
+sudo apt install -y cmake g++ pkg-config python3-dev libopenexr-dev
 ```
 
 **Fedora/CentOS/RHEL:**
 ```bash
-sudo dnf install -y cmake gcc-c++ pkgconfig python3-devel
+sudo dnf install -y cmake gcc-c++ pkgconfig python3-devel OpenEXR-devel
 ```
 
 ### Python Environment Setup
