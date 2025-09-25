@@ -57,12 +57,13 @@ RUN python3 -m pip install --upgrade pip setuptools wheel packaging ninja --brea
 # Copy requirements files
 COPY requirements_gen3c.txt requirements_lyra.txt ./
 
-# Install Python dependencies in correct order
+# Install Python dependencies in correct order to the pipx transformers environment
+# This fixes the Python environment mismatch issue
 # First install requirements_gen3c.txt
-RUN pip install --no-cache-dir --break-system-packages -r requirements_gen3c.txt
+RUN /root/.local/share/pipx/venvs/transformers/bin/python -m pip install --no-cache-dir -r requirements_gen3c.txt
 
 # Then install requirements_lyra.txt  
-RUN pip install --no-cache-dir --break-system-packages -r requirements_lyra.txt
+RUN /root/.local/share/pipx/venvs/transformers/bin/python -m pip install --no-cache-dir -r requirements_lyra.txt
 
 # Copy the CUDA installation script
 COPY install_cuda_packages.sh ./
@@ -73,7 +74,7 @@ RUN chmod +x install_cuda_packages.sh && \
     bash install_cuda_packages.sh || echo "CUDA packages installation completed with warnings"
 
 # Install additional packages that might be needed for Hugging Face downloads
-RUN pip install --no-cache-dir --break-system-packages huggingface_hub
+RUN /root/.local/share/pipx/venvs/transformers/bin/python -m pip install --no-cache-dir huggingface_hub
 
 # Copy the rest of the application code
 COPY . .
@@ -92,6 +93,8 @@ RUN mkdir -p assets/demo checkpoints logs
 ENV CUDA_HOME=/usr/local/cuda
 ENV PATH=$CUDA_HOME/bin:$PATH
 ENV LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+
+# Python environment fix applied above - packages now installed to correct pipx environment
 
 # Set additional environment variables for the application
 ENV PYTHONPATH="/app"

@@ -1,6 +1,41 @@
 #!/bin/bash
 set -e
 
+# Check if custom command is provided - if so, execute directly without automation
+if [ $# -gt 0 ]; then
+    case "$1" in
+        --interactive|-i)
+            # Interactive mode - run automation then bash
+            ;;
+        --help|-h)
+            echo "Lyra Docker Container Usage:"
+            echo "  docker run -it --gpus all lyra:latest           # Run automated demos"
+            echo "  docker run -it --gpus all lyra:latest -i        # Run demos then interactive bash"
+            echo "  docker run -it --gpus all lyra:latest bash      # Skip demos, direct bash"
+            echo "  docker run -it --gpus all lyra:latest <cmd>     # Execute custom command"
+            echo "  docker run -it --gpus all lyra:latest --help    # Show this help"
+            exit 0
+            ;;
+        bash|sh|/bin/bash|/bin/sh)
+            # Direct shell access - skip automation
+            echo "=== Direct Shell Access ==="
+            exec "$@"
+            ;;
+        python*|pip*|accelerate|huggingface-cli)
+            # Direct command execution - skip automation  
+            echo "=== Executing Custom Command: $@ ==="
+            cd /app
+            exec "$@"
+            ;;
+        *)
+            # Other custom commands
+            echo "=== Executing Custom Command: $@ ==="
+            cd /app
+            exec "$@"
+            ;;
+    esac
+fi
+
 echo "=== Lyra Docker Container Starting ==="
 echo "Working directory: $(pwd)"
 echo "Python version: $(python --version)"
@@ -47,11 +82,11 @@ if ! python -c "import torch" 2>/dev/null; then
     echo "This might happen if there was an issue during Docker build."
     echo ""
     
-    echo "Reinstalling requirements_gen3c.txt..."
-    pip install --no-cache-dir --break-system-packages -r /app/requirements_gen3c.txt || echo "❌ Failed to install requirements_gen3c.txt"
+    echo "Reinstalling requirements_gen3c.txt to pipx transformers environment..."
+    /root/.local/share/pipx/venvs/transformers/bin/python -m pip install --no-cache-dir -r /app/requirements_gen3c.txt || echo "❌ Failed to install requirements_gen3c.txt"
     
-    echo "Reinstalling requirements_lyra.txt..."
-    pip install --no-cache-dir --break-system-packages -r /app/requirements_lyra.txt || echo "❌ Failed to install requirements_lyra.txt"
+    echo "Reinstalling requirements_lyra.txt to pipx transformers environment..."
+    /root/.local/share/pipx/venvs/transformers/bin/python -m pip install --no-cache-dir -r /app/requirements_lyra.txt || echo "❌ Failed to install requirements_lyra.txt"
     
     echo "Verifying torch installation after reinstall..."
     python -c "import torch; print(f'✓ Torch reinstalled: {torch.__version__}')" || echo "❌ Torch still not available"

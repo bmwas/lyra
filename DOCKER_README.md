@@ -103,9 +103,14 @@ If you encounter package installation errors during build:
 # 2. Added --break-system-packages flag to pip commands (safe in Docker containers)
 ```
 
-### Externally Managed Environment Error
+### Python Environment Issues
 
-The base image uses PEP 668 externally-managed-environment protection. The Dockerfile uses `--break-system-packages` flag which is safe and appropriate for Docker containers.
+The HuggingFace TGI base image uses pipx virtual environments. Our Dockerfile has been updated to:
+1. **Install packages to the correct pipx environment** (`/root/.local/share/pipx/venvs/transformers/`)
+2. **Fix Python path conflicts** between system and pipx environments
+3. **Ensure all pip installations target the same environment**
+
+This resolves `ModuleNotFoundError: No module named 'torch'` issues.
 
 ### CUDA Package Installation Issues
 
