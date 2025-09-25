@@ -38,8 +38,20 @@ fi
 
 # Check if nvcc is available
 if ! command -v nvcc &> /dev/null; then
-    echo "ERROR: nvcc not found. Please install CUDA development tools."
-    exit 1
+    echo "WARNING: nvcc not found in PATH. CUDA development tools may not be installed."
+    echo "This means CUDA packages (flash_attn, causal_conv1d, etc.) cannot be compiled."
+    echo ""
+    echo "REMOTE SYSTEM OPTIONS:"
+    echo "1. Install CUDA development tools (requires admin access)"
+    echo "2. Use CPU-only versions where available"
+    echo "3. Skip CUDA packages and continue with available packages"
+    echo ""
+    read -p "Continue anyway? (y/N): " choice
+    if [[ ! "$choice" =~ ^[Yy]$ ]]; then
+        echo "Installation cancelled."
+        exit 1
+    fi
+    echo "Continuing without CUDA compilation support..."
 fi
 
 echo "Torch found, proceeding with CUDA package installation..."
@@ -48,7 +60,7 @@ echo ""
 # Set CUDA environment variables
 export CUDA_HOME=$(dirname $(dirname $(which nvcc)))
 export PATH=$CUDA_HOME/bin:$PATH
-
+n
 # Install missing dependencies first
 echo "Installing build dependencies..."
 python -m pip install --upgrade pip setuptools wheel packaging ninja
@@ -58,7 +70,28 @@ export PIP_DISABLE_PIP_VERSION_CHECK=1
 export TORCH_CUDA_ARCH_LIST="6.0;6.1;7.0;7.5;8.0;8.6+PTX"
 
 echo "Installing Flash Attention..."
-python -m pip install flash_attn==2.7.4.post1 --no-build-isolation --verbose
+if command -v nvcc &> /dev/null; then
+    echo "NVCC found, attempting CUDA build..."
+    python -m pip install flash_attn==2.7.4.post1 --no-build-isolation --verbose
+    
+    if [ $? -ne 0 ]; then
+        echo "❌ CUDA build failed. Attempting source build..."
+        echo "Cloning Flash Attention repository..."
+        git clone https://github.com/Dao-AILab/flash-attention.git /tmp/flash-attention
+        cd /tmp/flash-attention
+        python -m pip install . --no-build-isolation --verbose
+        cd - > /dev/null
+        
+        if [ $? -ne 0 ]; then
+            echo "❌ Source build also failed."
+            echo "✅ CPU fallback available: see flash_attention_fallback.py"
+        fi
+    fi
+else
+    echo "⚠️  NVCC not available, skipping Flash Attention CUDA build"
+    echo "✅ CPU fallback available: see flash_attention_fallback.py"
+    echo "   You can import flash_attention_fallback as flash_attn_func"
+fi
 
 echo "Installing Causal Conv1D..."
 python -m pip install git+https://github.com/Dao-AILab/causal-conv1d@v1.4.0 --no-build-isolation --verbose

@@ -1,0 +1,59 @@
+# Git files
+.git
+.gitignore
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments  
+myenv/
+virtualenv/
+venv/
+env/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Large model files that should be downloaded separately
+checkpoints/
+*.pth
+*.pt
+*.bin
+*.safetensors
+
+# Dataset files
+assets/demo/
+lyra_dataset/
+
+# Documentation
+README.md
+CONTRIBUTING.md
+ATTRIBUTIONS.md
+INSTALL.md
+LICENSE
+CUDA_INSTALLATION_GUIDE.md
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
