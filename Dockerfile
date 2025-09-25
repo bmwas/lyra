@@ -1,6 +1,9 @@
 # Use the specified base image
 FROM ghcr.io/huggingface/text-generation-inference:3.3.6-trtllm
 
+# Switch to root user to install packages
+USER root
+
 # Set the working directory
 WORKDIR /app
 
@@ -34,13 +37,17 @@ RUN apt-get update && \
     # SSL and FFI development libraries
     libssl-dev \
     libffi-dev \
-    # Additional libraries that might be needed
-    libgl1-mesa-glx \
+    # Additional libraries that might be needed (fixed for Ubuntu 24.04)
+    libgl1-mesa-dev \
+    libgl1-mesa-dri \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender-dev \
     libgomp1 \
+    # Additional packages for graphics/video processing
+    libglu1-mesa-dev \
+    freeglut3-dev \
     # Clean up apt cache
     && rm -rf /var/lib/apt/lists/*
 
