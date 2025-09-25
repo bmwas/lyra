@@ -52,17 +52,17 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build dependencies
-RUN python3 -m pip install --upgrade pip setuptools wheel packaging ninja
+RUN python3 -m pip install --upgrade pip setuptools wheel packaging ninja --break-system-packages
 
 # Copy requirements files
 COPY requirements_gen3c.txt requirements_lyra.txt ./
 
 # Install Python dependencies in correct order
 # First install requirements_gen3c.txt
-RUN pip install --no-cache-dir -r requirements_gen3c.txt
+RUN pip install --no-cache-dir --break-system-packages -r requirements_gen3c.txt
 
 # Then install requirements_lyra.txt  
-RUN pip install --no-cache-dir -r requirements_lyra.txt
+RUN pip install --no-cache-dir --break-system-packages -r requirements_lyra.txt
 
 # Copy the CUDA installation script
 COPY install_cuda_packages.sh ./
@@ -73,7 +73,7 @@ RUN chmod +x install_cuda_packages.sh && \
     bash install_cuda_packages.sh || echo "CUDA packages installation completed with warnings"
 
 # Install additional packages that might be needed for Hugging Face downloads
-RUN pip install --no-cache-dir huggingface_hub
+RUN pip install --no-cache-dir --break-system-packages huggingface_hub
 
 # Copy the rest of the application code
 COPY . .

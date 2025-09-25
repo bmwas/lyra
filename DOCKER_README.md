@@ -73,6 +73,20 @@ accelerate launch sample.py --config configs/demo/lyra_dynamic.yaml
 
 ## Troubleshooting
 
+### Package Installation Issues
+
+If you encounter package installation errors during build:
+
+```bash
+# The Dockerfile has been updated to fix Ubuntu 24.04 compatibility issues:
+# 1. libgl1-mesa-glx was replaced with libgl1-mesa-dev + libgl1-mesa-dri
+# 2. Added --break-system-packages flag to pip commands (safe in Docker containers)
+```
+
+### Externally Managed Environment Error
+
+The base image uses PEP 668 externally-managed-environment protection. The Dockerfile uses `--break-system-packages` flag which is safe and appropriate for Docker containers.
+
 ### CUDA Package Installation Issues
 
 If CUDA packages fail to compile during Docker build:

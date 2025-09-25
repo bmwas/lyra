@@ -60,10 +60,9 @@ echo ""
 # Set CUDA environment variables
 export CUDA_HOME=$(dirname $(dirname $(which nvcc)))
 export PATH=$CUDA_HOME/bin:$PATH
-n
 # Install missing dependencies first
 echo "Installing build dependencies..."
-python -m pip install --upgrade pip setuptools wheel packaging ninja
+python -m pip install --upgrade pip setuptools wheel packaging ninja --break-system-packages
 
 # Set environment variables to help with installation
 export PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -72,14 +71,14 @@ export TORCH_CUDA_ARCH_LIST="6.0;6.1;7.0;7.5;8.0;8.6+PTX"
 echo "Installing Flash Attention..."
 if command -v nvcc &> /dev/null; then
     echo "NVCC found, attempting CUDA build..."
-    python -m pip install flash_attn==2.7.4.post1 --no-build-isolation --verbose
+    python -m pip install flash_attn==2.7.4.post1 --no-build-isolation --verbose --break-system-packages
     
     if [ $? -ne 0 ]; then
         echo "❌ CUDA build failed. Attempting source build..."
         echo "Cloning Flash Attention repository..."
         git clone https://github.com/Dao-AILab/flash-attention.git /tmp/flash-attention
         cd /tmp/flash-attention
-        python -m pip install . --no-build-isolation --verbose
+        python -m pip install . --no-build-isolation --verbose --break-system-packages
         cd - > /dev/null
         
         if [ $? -ne 0 ]; then
@@ -94,15 +93,15 @@ else
 fi
 
 echo "Installing Causal Conv1D..."
-python -m pip install git+https://github.com/Dao-AILab/causal-conv1d@v1.4.0 --no-build-isolation --verbose
+python -m pip install git+https://github.com/Dao-AILab/causal-conv1d@v1.4.0 --no-build-isolation --verbose --break-system-packages
 
 echo "Installing GSplat..."
-python -m pip install git+https://github.com/nerfstudio-project/gsplat.git@73fad53c31ec4d6b088470715a63f432990493de --no-build-isolation --verbose
+python -m pip install git+https://github.com/nerfstudio-project/gsplat.git@73fad53c31ec4d6b088470715a63f432990493de --no-build-isolation --verbose --break-system-packages
 
 echo "Installing Fused SSIM..."
-python -m pip install git+https://github.com/rahul-goel/fused-ssim/@8bdb59feb7b9a41b1fab625907cb21f5417deaac --no-build-isolation --verbose
+python -m pip install git+https://github.com/rahul-goel/fused-ssim/@8bdb59feb7b9a41b1fab625907cb21f5417deaac --no-build-isolation --verbose --break-system-packages
 
 echo ""
 echo "CUDA package installation completed!"
 echo "If any package failed to install, you can try installing it individually with:"
-echo "pip install --no-build-isolation <package_name>"
+echo "pip install --no-build-isolation --break-system-packages <package_name>"
