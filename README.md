@@ -27,6 +27,23 @@ The ability to generate virtual environments is crucial for applications ranging
 
 ## Installation
 
+### System Dependencies
+
+Before setting up the Python environment, you need to install the following system dependencies for building certain packages (particularly `sentencepiece`) from source:
+
+**Ubuntu/Debian:**
+```bash
+sudo apt update
+sudo apt install -y cmake g++ pkg-config python3-dev
+```
+
+**Fedora/CentOS/RHEL:**
+```bash
+sudo dnf install -y cmake gcc-c++ pkgconfig python3-devel
+```
+
+### Python Environment Setup
+
 Please follow the [INSTALL.md](INSTALL.md) to set up your conda environment and download pre-trained weights.
 
 ## Demo

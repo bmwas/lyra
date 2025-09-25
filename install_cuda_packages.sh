@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Installation script for CUDA packages that require special handling
+# Make sure to run this AFTER installing requirements_gen3c.txt
+
+echo "Installing CUDA packages for Lyra..."
+echo "This script requires:"
+echo "1. torch and torchvision already installed"
+echo "2. nvcc available in PATH"
+echo "3. CUDA development tools installed"
+echo ""
+
+# Check if torch is installed
+python -c "import torch; print(f'Torch version: {torch.__version__}')" 2>/dev/null
+if [ $? -ne 0 ]; then
+    echo "ERROR: torch is not installed. Please install requirements_gen3c.txt first."
+    exit 1
+fi
+
+# Check if nvcc is available
+if ! command -v nvcc &> /dev/null; then
+    echo "ERROR: nvcc not found. Please install CUDA development tools."
+    exit 1
+fi
+
+echo "Torch found, proceeding with CUDA package installation..."
+echo ""
+
+# Set CUDA environment variables
+export CUDA_HOME=$(dirname $(dirname $(which nvcc)))
+export PATH=$CUDA_HOME/bin:$PATH
+
+echo "Installing Flash Attention..."
+pip install --no-build-isolation flash_attn==2.7.4.post1
+
+echo "Installing Causal Conv1D..."
+pip install --no-build-isolation git+https://github.com/Dao-AILab/causal-conv1d@v1.4.0
+
+echo "Installing GSplat..."
+pip install --no-build-isolation git+https://github.com/nerfstudio-project/gsplat.git@73fad53c31ec4d6b088470715a63f432990493de
+
+echo "Installing Fused SSIM..."
+pip install --no-build-isolation git+https://github.com/rahul-goel/fused-ssim/@8bdb59feb7b9a41b1fab625907cb21f5417deaac
+
+echo ""
+echo "CUDA package installation completed!"
+echo "If any package failed to install, you can try installing it individually with:"
+echo "pip install --no-build-isolation <package_name>"
