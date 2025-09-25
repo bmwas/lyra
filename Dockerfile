@@ -78,7 +78,11 @@ RUN pip install --no-cache-dir --break-system-packages huggingface_hub
 # Copy the rest of the application code
 COPY . .
 
-# Set up proper permissions
+# Copy and set up the entrypoint script
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Set up proper permissions for other scripts
 RUN chmod +x train.sh inference.sh scripts/bash/*.sh
 
 # Create necessary directories
@@ -89,8 +93,16 @@ ENV CUDA_HOME=/usr/local/cuda
 ENV PATH=$CUDA_HOME/bin:$PATH
 ENV LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 
+# Set additional environment variables for the application
+ENV PYTHONPATH=/app:$PYTHONPATH
+ENV HUGGINGFACE_HUB_CACHE=/app/cache/huggingface
+ENV TORCH_HOME=/app/cache/torch
+
 # Expose common ports (adjust as needed)
 EXPOSE 8080 8000 7860
 
-# Set the default command (can be overridden)
-CMD ["python3", "sample.py", "--help"]
+# Set the entrypoint to our custom script
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Default command (can be overridden)
+CMD []

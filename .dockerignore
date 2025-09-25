@@ -41,17 +41,25 @@ checkpoints/
 *.bin
 *.safetensors
 
-# Dataset files
+# Dataset files that will be downloaded by entrypoint
 assets/demo/
 lyra_dataset/
 
-# Documentation
-README.md
-CONTRIBUTING.md
-ATTRIBUTIONS.md
-INSTALL.md
-LICENSE
-CUDA_INSTALLATION_GUIDE.md
+# Keep essential Docker files
+!Dockerfile
+!.dockerignore
+!entrypoint.sh
+!requirements_*.txt
+!install_cuda_packages.sh
+!flash_attention_fallback.py
+
+# Documentation (kept in image for reference)
+# README.md
+# CONTRIBUTING.md
+# ATTRIBUTIONS.md
+# INSTALL.md
+# LICENSE
+# CUDA_INSTALLATION_GUIDE.md
 
 # Build artifacts
 build/

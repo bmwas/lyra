@@ -11,17 +11,30 @@ docker build -t lyra:latest .
 
 ## Running the Container
 
-### Basic Usage
+### 🚀 Automated Demo Mode (Recommended)
+
+The container includes an automated entrypoint that downloads models and runs demos:
 
 ```bash
-# Run the container interactively
-docker run -it --gpus all -v $(pwd)/assets:/app/assets lyra:latest bash
+# Run complete automated demo (downloads models + runs both static & dynamic demos)
+docker run -it --gpus all \
+  -v $(pwd)/checkpoints:/app/checkpoints \
+  -v $(pwd)/assets:/app/assets \
+  -v $(pwd)/outputs:/app/outputs \
+  lyra:latest
 ```
 
-### With Volume Mounts for Persistent Data
+### 🎮 Interactive Mode
 
 ```bash
-# Run with mounted directories for checkpoints and outputs
+# Run demos then start interactive bash session
+docker run -it --gpus all \
+  -v $(pwd)/checkpoints:/app/checkpoints \
+  -v $(pwd)/assets:/app/assets \
+  -v $(pwd)/outputs:/app/outputs \
+  lyra:latest --interactive
+
+# Or skip demos and go straight to bash
 docker run -it --gpus all \
   -v $(pwd)/checkpoints:/app/checkpoints \
   -v $(pwd)/assets:/app/assets \
@@ -29,32 +42,39 @@ docker run -it --gpus all \
   lyra:latest bash
 ```
 
-### Download Required Models
-
-Once inside the container, download the pre-trained models:
+### 📋 Available Container Options
 
 ```bash
-# Download checkpoints
+# Show help
+docker run lyra:latest --help
+
+# Run demos then keep container alive for exec commands
+docker run -d --gpus all lyra:latest
+
+# Execute commands in running container
+docker exec -it <container_id> bash
+```
+
+### 🏗️ Manual Setup (if needed)
+
+The automated entrypoint handles everything, but if you need manual control:
+
+```bash
+# Download checkpoints manually
 python scripts/download_lyra_checkpoints.py
 python scripts/download_gen3c_checkpoints.py
 python scripts/download_tokenizer_checkpoints.py
 
-# Download demo data
+# Download demo data manually
 huggingface-cli download nvidia/Lyra-Testing-Example --repo-type dataset --local-dir assets/demo
 ```
 
-### Running Lyra Demos
-
-#### Static Scene Generation (Single Image to 3D)
+### 🎬 Manual Demo Execution
 
 ```bash
 # Generate 3D scene from image
 accelerate launch sample.py --config configs/demo/lyra_static.yaml
-```
 
-#### Dynamic Scene Generation (Video to 4D)
-
-```bash
 # Generate dynamic 3D scene from video  
 accelerate launch sample.py --config configs/demo/lyra_dynamic.yaml
 ```
