@@ -51,19 +51,23 @@ export PATH=$CUDA_HOME/bin:$PATH
 
 # Install missing dependencies first
 echo "Installing build dependencies..."
-pip install packaging wheel setuptools
+python -m pip install --upgrade pip setuptools wheel packaging ninja
+
+# Set environment variables to help with installation
+export PIP_DISABLE_PIP_VERSION_CHECK=1
+export TORCH_CUDA_ARCH_LIST="6.0;6.1;7.0;7.5;8.0;8.6+PTX"
 
 echo "Installing Flash Attention..."
-pip install --no-build-isolation flash_attn==2.7.4.post1
+python -m pip install flash_attn==2.7.4.post1 --no-build-isolation --verbose
 
 echo "Installing Causal Conv1D..."
-pip install --no-build-isolation git+https://github.com/Dao-AILab/causal-conv1d@v1.4.0
+python -m pip install git+https://github.com/Dao-AILab/causal-conv1d@v1.4.0 --no-build-isolation --verbose
 
 echo "Installing GSplat..."
-pip install --no-build-isolation git+https://github.com/nerfstudio-project/gsplat.git@73fad53c31ec4d6b088470715a63f432990493de
+python -m pip install git+https://github.com/nerfstudio-project/gsplat.git@73fad53c31ec4d6b088470715a63f432990493de --no-build-isolation --verbose
 
 echo "Installing Fused SSIM..."
-pip install --no-build-isolation git+https://github.com/rahul-goel/fused-ssim/@8bdb59feb7b9a41b1fab625907cb21f5417deaac
+python -m pip install git+https://github.com/rahul-goel/fused-ssim/@8bdb59feb7b9a41b1fab625907cb21f5417deaac --no-build-isolation --verbose
 
 echo ""
 echo "CUDA package installation completed!"
